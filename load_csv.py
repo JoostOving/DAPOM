@@ -1,7 +1,7 @@
 import pandas as pd
 
 def get_data_csv():
-  pd.read_csv("data.csv")
+  data = pd.read_csv("data.csv")
+  return data
 
-data = get_data_csv()
-print(data)
+print(get_data_csv())
