@@ -1,4 +1,6 @@
 import pandas as pd
+from load_csv import get_data_csv
+
 
 DATETIME = "DateTime"
 TRUCK = "Truck"  # δt (0/1)
@@ -17,9 +19,4 @@ PARAMETERS = {
     "solver_params": {},         # gurobi parameters dict
 }
 
-def get_data_csv():
-    return pd.read_csv("data.csv")
 
-data = pd.DataFrame(get_data_csv())
-
-print(data)
