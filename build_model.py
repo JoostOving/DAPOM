@@ -2,7 +2,7 @@ from gurobipy import Model, GRB
 
 def build_model(data, parameters=None):
     """
-    Builds the Gurobi EMS model for a single charging session.
+    Builds the Gurobi EMS model for a single charging session. Sets the parameters and also adds constraints to the model, which is called in main.py.
     """
 
     # parameters from the assignment
