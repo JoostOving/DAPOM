@@ -17,7 +17,7 @@ def main():
         model.optimize()
         
         all_results.append({
-            "session_start": start_idx,
+            "session_start": start_session,
             "session_end": time_dep,
             "model": model,
             "info": info
