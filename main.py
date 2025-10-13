@@ -10,20 +10,20 @@ def main():
     departures = get_departure_times(data["Truck"])
     all_results = []
 
-    start_idx = 0
-    for t_dep in departures:
-        session_data = data.iloc[start_idx:t_dep+1]  
+    start_session = 0
+    for time_dep in departures:
+        session_data = data.iloc[start_session:time_dep+1]  
         model, info = build_model(session_data)
         model.optimize()
         
         all_results.append({
             "session_start": start_idx,
-            "session_end": t_dep,
+            "session_end": time_dep,
             "model": model,
             "info": info
         })
 
-        start_idx = t_dep + 1 
+        start_session = time_dep + 1 
 
     print(f"Total sessions optimized: {len(all_results)}")
 
