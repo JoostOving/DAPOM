@@ -109,8 +109,10 @@ def build_model(data: pd.DataFrame, parameters: dict | None = None):
     validate_data(data)
 
     model = Model("EMS_Optimization")
-    T = len(data)
 
+    model.Params.OutputFlag = 0 # suppress Gurobi output
+
+    T = len(data)
     vars = create_decision_variables(model, T, parameters["Qb_max"], parameters["Qg_max"], data["Solar_production_kWh"].values)
     add_constraints(model, data, vars, parameters)
     set_objective(model, vars, data, parameters)
