@@ -1,21 +1,19 @@
 
-
 import copy
 import math
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from build_model import build_model, get_default_parameters
+from build_model import build_model
 from utils import get_departure_times
-from load_csv import get_data_csv
 
-# ---------------- Helper Functions ----------------
 
 def run_sessions(data: pd.DataFrame, parameters: dict) -> dict:
     """
     Run all sessions for a dataset and return total cost, total gamma, and session metrics.
     """
+
     departures = get_departure_times(data["Truck"])
     start_session = 0
 
@@ -52,9 +50,7 @@ def run_sessions(data: pd.DataFrame, parameters: dict) -> dict:
 
 def plot_and_save(x, y_dict, xlabel, ylabel, title, filename):
     """
-    Generic plotting function.
-    x: array/list of x-values
-    y_dict: dictionary of {label: y-values}
+    Plotting function for the upcoming functions to visualize the results.
     """
     plt.figure()
     for label, y in y_dict.items():
@@ -70,7 +66,7 @@ def plot_and_save(x, y_dict, xlabel, ylabel, title, filename):
     print(f"Saved plot to {filename}")
 
 
-# ---------------- Experiment 1: Solar capacity ----------------
+# 1. Solar capacity experiment
 
 def experiment_solar_capacity(data, base_params, multipliers, current_capacity_kW=1500, cost_per_kW=1250):
     """
@@ -98,14 +94,12 @@ def experiment_solar_capacity(data, base_params, multipliers, current_capacity_k
 
     df = pd.DataFrame(results)
 
-    # plot
-    x = (df["multiplier"] - 1.0) * (current_capacity_kW / 1000.0)  # MW added
+    # plots the results
+    x = (df["multiplier"] - 1.0) * (current_capacity_kW / 1000.0)  
     plot_and_save(x, 
-                  {"Operational cost": df["operational_cost"], "Net cost": df["net_cost"]},
-                  "Added solar capacity (MW)", "Cost (EUR)",
-                  "Solar Capacity vs Costs", "solar_capacity_vs_cost.png")
+                  {"Operational cost": df["operational_cost"], "Net cost": df["net_cost"]}, "Added solar capacity (MW)", "Cost (EUR)", "Solar Capacity vs Costs", "solar_capacity_vs_cost.png")
 
-    # recommendation
+    # find the best multiplier
     best_idx = df["net_cost"].idxmin()
     best = df.loc[best_idx]
     print(f"Best solar multiplier: {best['multiplier']}, add {(best['multiplier']-1)*current_capacity_kW/1000:.2f} MW")
@@ -113,12 +107,11 @@ def experiment_solar_capacity(data, base_params, multipliers, current_capacity_k
     return df
 
 
-# ---------------- Experiment 2: Grid capacity ----------------
+# 2. Grid capacity experiment
 
 def experiment_grid_capacity(data, base_params, qg_values):
     """
     Vary grid capacity (Qg_max) and compute average SoC miss fraction.
-    Returns results DataFrame.
     """
     results = []
 
@@ -145,7 +138,7 @@ def experiment_grid_capacity(data, base_params, qg_values):
     return df
 
 
-# ---------------- Experiment 3: Truck charging power ----------------
+# 3. Truck charging power experiment
 
 def experiment_truck_charge_power(data, base_params, qb_values):
     """
@@ -167,7 +160,7 @@ def experiment_truck_charge_power(data, base_params, qb_values):
     return df
 
 
-# ---------------- Experiment 4: SoC target ----------------
+# 4. SoC target experiment
 
 def experiment_soc_target(data, base_params, targets):
     """
