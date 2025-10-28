@@ -84,6 +84,7 @@ def experiment_solar_capacity(data, base_params, multipliers, current_capacity_k
         added_kW = max(0, (m - 1.0) * current_capacity_kW)
         install_cost = added_kW * cost_per_kW
         net_cost = res["total_cost"] + install_cost
+        
 
         results.append({
             "multiplier": m,
@@ -123,13 +124,15 @@ def experiment_grid_capacity(data, base_params, qg_values):
         session_count = len(res["session_metrics"])
         avg_gamma = res["total_gamma"] / max(1, session_count)
         avg_fraction = avg_gamma / (params["v_target"] * params["Xmax"])
+        avg_cost = res["total_cost"] / max(1, session_count)
 
         results.append({
             "Qg_max": qg,
             "avg_gamma_kWh": avg_gamma,
-            "avg_miss_fraction": avg_fraction
+            "avg_miss_fraction": avg_fraction,
+            "avg_cost_per_session": avg_cost
         })
-        print(f"Qg_max={qg}: avg_gamma={avg_gamma:.2f} kWh, avg_fraction={avg_fraction:.2%}")
+        print(f"Qg_max={qg}: avg_gamma={avg_gamma:.2f} kWh, avg_fraction={avg_fraction:.2%}, avg_cost per session={avg_cost:.2f}")
 
     df = pd.DataFrame(results)
 
@@ -151,8 +154,11 @@ def experiment_truck_charge_power(data, base_params, qb_values):
         params["Qb_max"] = qb
 
         res = run_sessions(data, params)
-        results.append({"Qb_max": qb, "total_cost": res["total_cost"]})
-        print(f"Qb_max={qb}: total_cost={res['total_cost']:.2f}")
+        session_count = max(1, len(res["session_metrics"]))
+        avg_cost = res["total_cost"] / session_count
+
+        results.append({"Qb_max": qb, "total_cost": res["total_cost"], "avg_cost_per_session": avg_cost})
+        print(f"Qb_max={qb}: total_cost={res['total_cost']:.2f}, avg_cost per session={avg_cost:.2f}")
 
     df = pd.DataFrame(results)
     plot_and_save(df["Qb_max"], {"Total cost": df["total_cost"]},
@@ -174,12 +180,14 @@ def experiment_soc_target(data, base_params, targets):
 
         res = run_sessions(data, params)
         avg_gamma = res["total_gamma"] / max(1, len(res["session_metrics"]))
+        avg_cost = res["total_cost"] / max(1, len(res["session_metrics"]))
         results.append({
             "v_target": v,
             "total_cost": res["total_cost"],
-            "avg_gamma_kWh": avg_gamma
+            "avg_gamma_kWh": avg_gamma,
+            "avg_cost_per_session": avg_cost
         })
-        print(f"v_target={v:.2f}: total_cost={res['total_cost']:.2f}, avg_gamma={avg_gamma:.2f} kWh")
+        print(f"v_target={v:.2f}: total_cost={res['total_cost']:.2f}, avg_gamma={avg_gamma:.2f} kWh, avg_cost per session={avg_cost:.2f}")
 
     df = pd.DataFrame(results)
     plot_and_save(df["v_target"], {"Total cost": df["total_cost"]},
